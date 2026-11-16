@@ -118,7 +118,12 @@ CREATE TABLE fact_orders (
     delivery_days                                          INT,
     days_late                                               INT,
     is_late                                                  BOOLEAN,
-    delivery_date_missing_flag                                BOOLEAN NOT NULL DEFAULT FALSE
+    delivery_date_missing_flag                                BOOLEAN NOT NULL DEFAULT FALSE,
+
+    -- Customer-level attribute denormalised onto every order of that customer:
+    -- TRUE when the customer has >1 order AND first-to-last purchase spans > 0 days
+    -- (excludes same-day cart splits). Computed in the ETL, see 2_RelationalModelling.ipynb.
+    is_genuine_repeat_customer                                 BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE INDEX idx_fact_orders_customer   ON fact_orders(customer_key);

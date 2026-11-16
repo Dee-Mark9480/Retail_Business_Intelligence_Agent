@@ -1,0 +1,21 @@
+# Install with:  pip install -r requirements.txt
+# Lower bounds are the versions this project was built and run with (Python 3.12).
+
+# data handling
+pandas>=3.0
+numpy>=2.4
+pyarrow>=23.0          # Parquet read/write
+scipy>=1.17            # correlation tests in the EDA notebook
+
+# database
+SQLAlchemy>=2.0
+psycopg[binary]>=3.3   # PostgreSQL driver (psycopg 3)
+python-dotenv>=1.0     # loads PGPASSWORD from .env
+
+# notebooks and charts
+jupyter
+matplotlib>=3.10
+seaborn>=0.13
+
+# dashboard
+streamlit>=1.62

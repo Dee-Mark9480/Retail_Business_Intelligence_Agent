@@ -96,13 +96,50 @@ Streamlit Dashboard            (dashboard/)
 
 A Streamlit app (`dashboard/`) connects directly to the PostgreSQL warehouse
 via SQLAlchemy/psycopg3. All analytical logic lives in 9 validated SQL views
-(`SQL/6_views.sql`) — the Python layer only retrieves and displays;
+(`SQL/6_views.sql`, checked by `SQL/7_views_validation.sql`) — the Python layer only retrieves and displays;
 `queries.py` performs no aggregation, ranking, or metric calculation.
 
 Sections: **Top KPIs** → **Revenue & Orders** → **Product / Supplier** →
 **Customer** → **Operations / Customer Experience**.
 
 *(Screenshot to be added once the layout is finalized.)*
+
+## 8. How to Run
+
+Requires Python 3.12+ and a local PostgreSQL server.
+
+1. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **Get the data** — download the 9 CSVs from
+   [Kaggle](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) into `dataset/raw/`.
+3. **Set the database password** — copy `.env.example` to `.env` and set `PGPASSWORD`.
+   The code connects as user `postgres` to `localhost:5432`.
+4. **Create the database and tables**
+   ```bash
+   psql -U postgres -c "CREATE DATABASE olist_analytics"
+   ```
+   ```bash
+   psql -U postgres -d olist_analytics -f SQL/schema.sql
+   ```
+5. **Clean the data** — run `notebooks/1_EDA.ipynb` top to bottom; it writes the
+   Parquet files to `dataset/processed/`.
+6. **Load the warehouse** — run `notebooks/2_RelationalModelling.ipynb`; it loads all
+   dimensions and facts in one transaction.
+7. **Create the views**, then check them
+   ```bash
+   psql -U postgres -d olist_analytics -f SQL/6_views.sql
+   ```
+   ```bash
+   psql -U postgres -d olist_analytics -f SQL/7_views_validation.sql
+   ```
+8. **Start the dashboard**
+   ```bash
+   streamlit run dashboard/app.py
+   ```
+
+`schema.sql` is run once on an empty database. `6_views.sql` can be re-run at any time.
 
 ## Project Structure
 
@@ -120,13 +157,15 @@ Retail_Business_Intelligence_Agent/
 │   ├── 3_RFM.sql
 │   ├── 4_delivery_review_analysis.sql
 │   ├── 5_dashboard_metrics.sql
-│   ├── 6_views.sql
-│   ├── schema.sql
-│   ├── Validation.sql
-│   └── olist_analytics_session.sql
+│   ├── 6_views.sql              # the 9 dashboard views (re-runnable)
+│   ├── 7_views_validation.sql   # expected-value checks for those views
+│   ├── schema.sql               # star schema DDL + dim_date population
+│   └── Validation.sql           # genuine-repeat-rate check
 ├── dashboard/
 │   ├── app.py
 │   ├── db.py
 │   └── queries.py
+├── requirements.txt
+├── .env.example
 └── README.md
 ```

@@ -65,8 +65,8 @@ def get_customer_historical_value(top_n: int = 20) -> pd.DataFrame:
 
 
 def get_rfm_segments() -> pd.DataFrame:
-    # See accompanying message — this GROUP BY is an open architectural
-    # question, not yet resolved.
+    # The per-segment count is done in the v_rfm_segment_summary view
+    # (SQL/6_views.sql), so no aggregation happens here.
     return _read(
         "SELECT * FROM v_rfm_segment_summary ORDER BY customer_count DESC"
     )
